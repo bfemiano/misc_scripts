@@ -4,13 +4,13 @@ import random
 def main():
 	firstreader = open('first_name.txt', 'rb')
 	lastreader = open('last_name.txt', 'rb')
-	names = csv.writer(open('names.txt', 'wb'), delimiter='\t')
+	names = csv.writer(open('names.txt', 'wb'), delimiter=' ')
 	first_names = map(lambda x: x.strip('\n'), firstreader.readlines())
 	for line in firstreader:
 		print line.strip('\n')
 	last_names = map(lambda x: x.strip('\n'), lastreader.readlines())
 	already_generated = set([])
-	while len(already_generated) < 180000:
+	while len(already_generated) < 200000:
 		fn = random.randint(0,5492)
 		ln = random.randint(0,4476)
 		key = str(fn) + str(ln)
