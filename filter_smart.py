@@ -1,9 +1,8 @@
 import csv
 
-countries = set(['Japan', 'Australia', 'New Zealand', 'United States', 'Puerto Rico', 'Canada', 
-'Northern Ireland', 'Ireland', 'Scotland', 'Great Britain', 'Cayman Islands', 'Sweden', 'Denmark', 
-'Norway', 'France', 'Spain', 'Portugal', 'Germany', 'Belgium', 'Holland', 'Netherlands', 'Austria', 'Switzerland', 
-'Italy', 'Greece', 'Corsica', 'Russia', 'Soviet Union', 'Turkey'])
+countries = set(['Australia', 'New Zealand', 'United States', 'Canada', 
+'Ireland', 'Great Britain'])
+
 def inCountry(country):
 	return country in countries
 	
