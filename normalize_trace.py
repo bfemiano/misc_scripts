@@ -2,10 +2,8 @@ import csv
 import sys
 import os
 
-#Takes a tracefile and expands into multilple lines for each memory-read, memory-write, register read and/or register write per instruction. 
-# outputs a tableau ready file to the working directory where the script was executed. 
-# requires relative or absolute path to a tracefile.  
-
+#Takes tracefiles and normalizes memory/register 
+#read and write opsinto separate tableau-ready files
 def output(writer, fields, offset, seq, dataset):
 	for i in range(0, offset):
 		fields.pop(0)
@@ -28,24 +26,24 @@ def writeDataset(basicOut, memReadOut, memWriteOut, regReadOut, regWriteOut, tra
 		basicOut.writerow([row[0], row[1], row[2], dataset])
 		memread = row[5]
 		if len(memread) > 0:
-			memread= appendBase10ForHexFields([x for x in memread.split(':')], [2,4])
+			memread= appendBase10ForHexFields(memread.split(':'), [2,4])
 			output(memReadOut, memread, 2, row[0], dataset)
 		memwrite = row[6]
 		if len(memwrite) > 0:
 			fields = memwrite.split(':')
 			if len(fields) == 4:
 				fields.append('')
-			fields = appendBase10ForHexFields([x for x in fields], [2,4])
+			fields = appendBase10ForHexFields(fields, [2,4])
 			output(memWriteOut, fields, 2, row[0], dataset)
 		rreads = row[7]
 		if len(rreads) > 0:
 			for rread in rreads.split(','):
-				rread = appendBase10ForHexFields([x for x in rread.split(':')],[2])
+				rread = appendBase10ForHexFields(rread.split(':'),[2])
 				output(regReadOut, rread, 1, row[0], dataset)
 		rwrites = row[8]
 		if len(rwrites) > 0:
 			for rwrite in rwrites.split(','):
-				rwrite = appendBase10ForHexFields([x for x in rwrite.split(':')], [2])
+				rwrite = appendBase10ForHexFields(rwrite.split(':'), [2])
 				output(regWriteOut, rwrite, 1, row[0], dataset)
 		
 def main(workingPath):	
