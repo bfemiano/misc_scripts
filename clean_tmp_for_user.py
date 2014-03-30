@@ -57,6 +57,7 @@ def main():
                 cmds.append('fs')
                 cmds.append('-rm')
                 cmds.append('-r')
+                cmds.append('-skipTrash')
                 cmds.append(indir)  
                 subprocess.check_call(' '.join(cmds), shell=True)   
             else:
