@@ -1,3 +1,4 @@
+#added comment
 f = open('geotiff_jars', 'r')
 outFile = open('geotiff_jars.txt', 'w')
 for line in f.readlines() :
