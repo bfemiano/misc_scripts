@@ -1,6 +1,6 @@
 import csv
 import random
-
+#added comment
 def main():
 	firstreader = open('first_name.txt', 'rb')
 	lastreader = open('last_name.txt', 'rb')
