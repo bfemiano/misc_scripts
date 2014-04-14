@@ -2,7 +2,7 @@ import csv
 import sys
 import os
 
-#Takes tracefiles and normalizes memory/register 
+#Takes test tracefiles and normalizes memory/register 
 #read and write opsinto separate tableau-ready files
 def output(writer, fields, offset, seq, dataset):
 	for i in range(0, offset):

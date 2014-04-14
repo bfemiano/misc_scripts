@@ -1,4 +1,5 @@
 import sys
+#compact splits 
 r = open('splits.txt', 'rb')
 w = open('compact_splits.txt', 'wb')
 counter = 0
