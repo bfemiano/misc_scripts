@@ -50,7 +50,6 @@ def main():
         cutoff_date = datetime.strptime(options.date_arg, '%Y-%m-%d')
         if (date - cutoff_date).days < 0:
             if options.user == user:
-                print 'deleting {0}'.format(indir)
                 cmds = []
                 cmds.append('hadoop')
                 cmds.append('fs')

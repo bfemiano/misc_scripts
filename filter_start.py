@@ -1,8 +1,8 @@
 import csv
-
+#still better
 countries = set(['Australia', 'New Zealand', 'United States', 'Canada', 
 'Ireland', 'Great Britain'])
-
+#test
 def inCountry(country):
 	return country in countries
 	
