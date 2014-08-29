@@ -2,7 +2,7 @@ import subprocess
 import optparse
 import sys
 from datetime import datetime
-#comment
+
 __author__ = 'brianfemiano'
 
 def main():
@@ -48,9 +48,7 @@ def main():
                     continue
         date = datetime.strptime(indate,'%Y-%m-%d')
         cutoff_date = datetime.strptime(options.date_arg, '%Y-%m-%d')
-        if (date - cutoff_date).days >= 0:
-            print 'dir {0} written on {1} is = or > than cutoff date {2}, ignoring'.format(indir, indate, options.date_arg)
-        else:
+        if (date - cutoff_date).days < 0:
             if options.user == user:
                 cmds = []
                 cmds.append('hadoop')
