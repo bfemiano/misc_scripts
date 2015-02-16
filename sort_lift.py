@@ -10,4 +10,4 @@ with open('/Users/bfemiano/category_lift.csv000', 'r') as lift_file:
 		writer = csv.writer(out_file, delimiter=',')
 		groups = [list(grp) for k,grp in groupby(items, lambda x: int(x[1]))]
 		for g in groups:
-			writer.writerows(sorted(g, key=lambda x : int(x[6]), reverse=True))
+			writer.writerows(sorted(g, key=lambda x : int(x[6]), reverse=True)[0:10])
