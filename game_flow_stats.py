@@ -131,3 +131,4 @@ def game_stats(game):
 if __name__ == '__main__':
     games = collect_actions_by_game(open('game_flow_details.csv', 'rb').readlines()[1:]) #trim flow id
     stats = [game_stats(game) for game in games]
+    stats = [x[0] for x in stats] + [x[1] for x in stats]
