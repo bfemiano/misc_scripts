@@ -7,7 +7,10 @@ from getpass import getpass
 # (name1, email1)
 # (name2, email2)
 # not checked in to hide email addresses. 
-cousins = load_from_file
+cousins = []
+with open('name_email_file.txt', 'r') as name_email_pairs_in:
+    for line in name_email_pairs_in.readlines():
+        cousins.append(tuple(line.strip('\n').split(',')))
 
 def pick(cousin):
     rand_cousin = cousin
@@ -16,9 +19,27 @@ def pick(cousin):
         rand_cousin = cousins[n]
     return rand_cousin
     
+def generate_email(giver, receiver):
+    (giver_name, giver_email) = giver
+    (receiver_name, receiver_email) = receiver
+    msg = '''Subject: Here's your assigned cousin!\n
+    
+    Hello {giver_name},
+ 
+    Your 2015 gift exchange recipient: {receiver_name}
+ 
+    Email address to help you reach him/her: {receiver_email}
+ 
+    The names were randomly drawn using a computer program I wrote that randomly paired cousins with other cousins. It was designed to avoid selecting yourself or people in your immediate family. So for example Joseph would not be paired with himself or Anna or Christopher.
+ 
+    See you at the farm!
+    '''.format(giver_name=giver_name, receiver_name=receiver_name, receiver_email=receiver_email)
+    return (giver_email, msg)
 
 cousins_copy = [c for c in cousins]
 assignments = {}
+emails_to_send = []
+
 for c in cousins_copy:
     choice = 'N'
     while choice == 'N':
@@ -26,16 +47,17 @@ for c in cousins_copy:
         choice = raw_input("Accept %s -> %s? Enter (Y/N) " % (c, rand_cousin))
     cousins.remove(rand_cousin)
     assignments[c] = rand_cousin
-    
-fastmail_server = 'mail.messagingengine.com:587'
+    emails_to_send.append(generate_email(c, rand_cousin))
 
-fromaddr = 'bfemiano@fastmail.com'
-toaddrs  = 'bfemiano@gmail.com'
+fastmail_server = 'mail.messagingengine.com:587'
 username = 'bfemiano@fastmail.com'
 password = getpass("password please ")
 
-server = smtplib.SMTP(fastmail_server)
-server.starttls()
-server.login(username,password)
-server.sendmail(fromaddr, toaddrs, msg)
-server.quit()
+try: 
+    server = smtplib.SMTP(fastmail_server)
+    server.starttls()    
+    server.login(username,password)
+    for (giver_email, msg) in emails_to_send:   
+        server.sendmail(username, giver_email, msg)
+finally:
+    server.quit()
