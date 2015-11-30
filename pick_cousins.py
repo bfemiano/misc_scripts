@@ -1,5 +1,13 @@
 import random
-cousins = ['Larissa', 'Todd', 'Brian', 'Liz', 'Aiden', 'Andrew', 'Andrew G.', 'Christopher', 'Rachel']
+import smtplib
+from getpass import getpass
+
+
+#File of the form,
+# (name1, email1)
+# (name2, email2)
+# not checked in to hide email addresses. 
+cousins = load_from_file
 
 def pick(cousin):
     rand_cousin = cousin
@@ -19,4 +27,15 @@ for c in cousins_copy:
     cousins.remove(rand_cousin)
     assignments[c] = rand_cousin
     
-print assignments
+fastmail_server = 'mail.messagingengine.com:587'
+
+fromaddr = 'bfemiano@fastmail.com'
+toaddrs  = 'bfemiano@gmail.com'
+username = 'bfemiano@fastmail.com'
+password = getpass("password please ")
+
+server = smtplib.SMTP(fastmail_server)
+server.starttls()
+server.login(username,password)
+server.sendmail(fromaddr, toaddrs, msg)
+server.quit()
