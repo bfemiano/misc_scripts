@@ -37,7 +37,6 @@ def generate_email(giver, receiver):
     return (giver_email, msg)
 
 cousins_copy = [c for c in cousins]
-assignments = {}
 emails_to_send = []
 
 for c in cousins_copy:
@@ -46,7 +45,6 @@ for c in cousins_copy:
         rand_cousin = pick(c)
         choice = raw_input("Accept %s -> %s? Enter (Y/N) " % (c, rand_cousin))
     cousins.remove(rand_cousin)
-    assignments[c] = rand_cousin
     emails_to_send.append(generate_email(c, rand_cousin))
 
 fastmail_server = 'mail.messagingengine.com:587'
