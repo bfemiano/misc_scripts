@@ -1,5 +1,6 @@
 import random
 import smtplib
+import time
 from getpass import getpass
 
 
@@ -62,7 +63,9 @@ try:  #email out all the cousins using the prepared message.
     server = smtplib.SMTP(fastmail_server)
     server.starttls()    
     server.login(username,password)
-    for (giver_email, msg) in emails_to_send:   
+    for (giver_email, msg) in emails_to_send:
+        print 'sending email to %s' % giver_email
         server.sendmail(username, giver_email, msg)
+        time.sleep(3) #rate limit to avoid being flagged as spam, just as a precaution.    
 finally:
     server.quit()
