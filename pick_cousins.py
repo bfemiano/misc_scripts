@@ -54,25 +54,23 @@ def get_cousin_pairings():
     #File of the form,
     # name1, email1, blocked_name|another_blocked_name
     # name2, email2, blocked_name|another_blocked_name
-    # not checked in to hide email addresses.
-    cousins = []
-    with open('cousin_names_and_emails.txt', 'r') as name_email_pairs_in:
-        for line in name_email_pairs_in.readlines():
-            cousins.append(tuple(line.strip('\n').split(',')))
+    cousins = build_cousins()
     pairs =  select_cousin([c for c in cousins], [c for c in cousins])
     if len(pairs) == 0:
-        raise Exception("Some cousin has everyone else blacklisted.")
+        raise Exception("Cousin blocked lists made it impossible to assign a recipient to everyone.")
     return pairs
 
 def get_blocked_list_for_cousins():
-    cousins = []
     blocked_map = {}
-    with open('cousin_names_and_emails.txt', 'r') as name_email_pairs_in:
-        for line in name_email_pairs_in.readlines():
-            cousins.append(tuple(line.strip('\n').split(',')))
+    cousins = build_cousins()
     for c in cousins:
         blocked_map[c[0]] = set(c[2].strip(' ').split('|'))
     return blocked_map
+
+
+def build_cousins():
+    with open('cousin_names_and_emails.txt', 'r') as name_email_pairs_in:
+        return [tuple(line.strip('\n').split(',')) for line in name_email_pairs_in.readlines()]
 
 blocked_map = get_blocked_list_for_cousins()
 emails_to_send = []
@@ -84,10 +82,12 @@ for (giver, recipient) in results:
 #This is a regression test to make sure the auto-selector is working. Do not approve if you see any output here.
 for i in xrange(1000):
     results = get_cousin_pairings()
-    output = [(pairing[0][0], pairing[1][0]) for pairing in results if pairing != 'done'] #collect only the names just to test
+    output = [(pairing[0][0], pairing[1][0]) for pairing in results if pairing != 'done'] #collect only the names.
     for o in output:
        if o[1] in blocked_map[o[0]] or o[0] == o[1]:
            print o[0], 'should not have --> %s ' % o[1]
+
+# ---- end regression test ----
 
 contin = raw_input("Do you approve of the list? (Only 'Y' will continue)")
 if contin != 'Y':
