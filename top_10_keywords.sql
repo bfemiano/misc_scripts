@@ -1,1 +1,4 @@
-select label, normalized_keyword, cnt, rank FROM (select keyword_category_id, normalized_keyword, count(*) as cnt, rank() over(partition by keyword_category_id order by count(*) desc) as rank from dw.searches where y = '2016' and m = '02' and d = '01' and h = '00' and keyword_category_id != 0 group by keyword_category_id, normalized_keyword) ranked, labels l WHERE l.keyword_category_id = ranked.keyword_category_id and rank <= 10 ORDER BY ranked.keyword_category_id, rank asc;
+drop view if exists top_10_keywords_per_cat;
+create view top_10_keywords_per_cat as select keyword_category_id, normalized_keyword, cnt, rank FROM (select keyword_category_id, normalized_keyword, count(*) as cnt, rank() over(partition by keyword_category_id order by count(*) desc) as rank from dw.searches where y = '2016' and m = '03' and keyword_category_id != 0 group by keyword_category_id, normalized_keyword) ranked WHERE rank <= 10 ORDER BY ranked.keyword_category_id, rank asc;
+select l.label, t.normalized_keyword, t.cnt, t.rank from top_10_keywords_per_cat t, dw.labels l WHERE l.keyword_category_id = t.keyword_category_id;	
+drop view if exists keywords;
