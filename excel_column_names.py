@@ -24,7 +24,6 @@ class ArrayIndexToSpreadsheetColumnNameTest(TestCase):
             index_map = start(n=1)
             self.assertEqual(len(index_map), 26)
             self.assertEqual(index_map[0], 'A')
-            self.assertEqual(index_map[0], 'A')
             self.assertEqual(index_map[9], 'J')
             self.assertEqual(index_map[25], 'Z')
             
