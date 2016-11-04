@@ -1,11 +1,18 @@
 import random
 
 def initialize(length, width):
-    return [[0 for w in range(width)] for l in range(length)]
+    board = []
+    available_spots = []
+    for i in range(length):
+        board.append([])
+        for j in range(width):
+            board[i].append(0)
+            available_spots.append((i,j))
+    return board, available_spots
 
 length = 4
 width = 4
-num_mines = 3
+num_mines = 7
 board = initialize(length=length, width=width)
 
 def get_neighbors(board, i, j):
@@ -29,49 +36,22 @@ def label_spots(board):
         for j in range(len(board[i])):
             if board[i][j] == -1:
                 for (ni, nj) in list(get_neighbors(board, i,j)):
-                    print ni,nj
                     if board[ni][nj] != -1:
                         board[ni][nj] += 1
     return board
-
-def scan_forward(board, l, w):
-    found = False
-    while l < len(board) and not found:
-        while w < len(board[l]) and not found:
-            if board[l][w] != -1:
-                board[l][w] = -1
-                found = True      
-            w += 1
-        w = 0
-        l += 1
-    return found
-        
-def scan_backward(board, l, w):
-    found = False
-    while l >= 0 and not found:
-        while w >= 0 and not found:
-            if board[l][w] != -1:
-                board[l][w] = -1
-                found = True      
-            w -= 1
-        w = len(board[l])
-        l -= 1
-
-def ran_place(board, num_mines, length, width):
+    
+def ran_place(board, available_slots, num_mines, length, width):
     num_placed = 0
     while num_placed < num_mines:
-        l = random.randint(0, length-1)
-        w = random.randint(0, width-1)
-        if board[l][w] != -1:
-            board[l][w] = -1
-        else:
-            found = scan_forward(board, l, w)
-            if not found:
-                scan_backward(board, l, w)
+        i = random.randint(0, len(available_slots)-1)
+        (l,w) = available_slots[i]
+        available_slots.remove((l,w))
+        board[l][w] = -1
         num_placed += 1
     return board
-
-board = ran_place(board, num_mines, length, width)
+    
+board, available_slots = initialize(length, width)
+board = ran_place(board, available_slots, num_mines, length, width)
 board = label_spots(board)
 for v in board:
     print v
