@@ -17,7 +17,7 @@ def generate_email(giver, receiver):
     
     Hello {giver_name},
  
-    Your 2015 gift exchange recipient: {receiver_name}
+    Your gift exchange recipient: {receiver_name}
  
     Email address to help you reach him/her: {receiver_email}
  

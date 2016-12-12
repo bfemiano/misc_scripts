@@ -23,11 +23,10 @@ def get_perms(combos, seq, a):
 def print_combos(seq, p):
     if len(p) == 0:
         print seq
-        return 
     else:
         for v in m[p[0]]:
             print_combos(seq + v, p[1:])
-    
+                
 def print_keypad(a):
     combos = []
     for perm in get_perms(combos=[], seq=[], a=a):
