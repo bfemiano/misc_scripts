@@ -9,7 +9,8 @@ from time import sleep
 
 """
 Runs on Current google-chrome version is 87.0.4280
-
+selenium==3.141.0
+webdriver-manager==3.2.2
 """
 
 options = webdriver.ChromeOptions()
