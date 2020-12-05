@@ -4,8 +4,9 @@ from urllib import request
 import json
 import os
 import smtplib
+from time import sleep
 
-values = b'{"params":{"itemList":[{"skuNo":1595780,"itemSource":"REG"}],"channels":["priceInfo"],"channelParams":{"priceInfo":{"PRICING_CONTEXT":"DETAILS_CART_LAYER"}}}}'
+values = b'{"params":{"itemList":[{"skuNo":1606947,"itemSource":"REG"}],"channels":["priceInfo"],"channelParams":{"priceInfo":{"PRICING_CONTEXT":"DETAILS_CART_LAYER"}}}}'
 
 headers = {
     "Authority": "www.bhphotovideo.com",
@@ -16,31 +17,37 @@ headers = {
 
 }
 
-link = "https://www.bhphotovideo.com/c/product/1595780-REG/pny_technologies_vcg308010tfxmpb_geforce_rtx_3080_10gb.html"
+recpts = ["ADD EMAILS"]
+
+link = "https://www.bhphotovideo.com/c/product/1606947-REG/gigabyte_gv_n306tgaming_oc_8gd_rtx_3060_ti_gaming.html"
 
 api_url = "https://www.bhphotovideo.com/api/item/p/product-details?from=cli&aperture=1&cliReqId=a41c1e91-9ef2c6-a409-2105d52f7b22-cli-7"
 
 req = request.Request(api_url, values, headers)
-recpt = "bfemiano@fastmail.com"
-with request.urlopen(req) as response:
-    data_back = json.loads(response.read())
-    for item in data_back['data']:
-        can_add_to_cart = item['priceInfo']['addToCartButton']
-        name = item['core']['shortDescription']
-        if can_add_to_cart != 'NONE' and not os.path.exists("/Users/bfemiano/bhphoto_email.sent"):
-            gmail_server = 'smtp.gmail.com'
-            username = 'bfemiano@gmail.com'
-            password = "REPLACE WITH REAL APP PASSWORD"
-            server = smtplib.SMTP(gmail_server, 587)
-            server.starttls()
-            server.login(username,password)
+while(True):
+    with request.urlopen(req) as response:
+        data_back = json.loads(response.read())
+        for item in data_back['data']:
+            can_add_to_cart = item['priceInfo']['addToCartButton']
+            add_to_crt_fnc = item['priceInfo']['addToCartFunction']
+            name = item['core']['shortDescription']
+            if (can_add_to_cart != 'NONE' or add_to_crt_fnc is not None) \
+                    and not os.path.exists("/Users/bfemiano/bhphoto_email.sent"):
+                gmail_server = 'smtp.gmail.com'
+                username = 'REDACTED'
+                password = "REDACTED"
+                server = smtplib.SMTP(gmail_server, 587)
+                server.starttls()
+                server.login(username,password)
+                for recpt in recpts:
+                    print("Sending email %s" % recpt)
+                    msg = """From: REDACTED\nTo: {recpt}\nSubject: BH Photo might have your item in stock!\n
 
-            msg = """From: bfemiano@gmail.com\nTo: {recpt}\nSubject: BH Photo might have your item in stock!\n
+                    {name}\n\n{url}
 
-                {name}\n\n{url}
+                    """.format(recpt=recpt, url=link, name=name)
 
-            """.format(recpt=recpt, url=link, name=name)
-
-            server.sendmail(username, recpt, msg)
-            with open("/Users/bfemiano/bhphoto_email.sent", 'w') as foo:
-                pass
+                    server.sendmail(username, recpt, msg)
+                with open("/Users/bfemiano/bhphoto_email.sent", 'w') as foo:
+                    pass
+    sleep(5)
