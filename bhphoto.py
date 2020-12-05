@@ -25,6 +25,10 @@ link = "https://www.bhphotovideo.com/c/product/1606947-REG/gigabyte_gv_n306tgami
 api_url = "https://www.bhphotovideo.com/api/item/p/product-details?from=cli&aperture=1&cliReqId=a41c1e91-9ef2c6-a409-2105d52f7b22-cli-7"
 
 req = request.Request(api_url, values, headers)
+
+if os.path.exists("/Users/bfemiano/bhphoto_email.sent"):
+    print("sent file already exists. Mistake?")
+
 while(True):
     with request.urlopen(req) as response:
         data_back = json.loads(response.read())
