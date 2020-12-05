@@ -4,6 +4,7 @@ from urllib import request
 import json
 import os
 import smtplib
+from datetime import datetime
 from time import sleep
 
 values = b'{"params":{"itemList":[{"skuNo":1606947,"itemSource":"REG"}],"channels":["priceInfo"],"channelParams":{"priceInfo":{"PRICING_CONTEXT":"DETAILS_CART_LAYER"}}}}'
@@ -39,8 +40,10 @@ while(True):
                 server = smtplib.SMTP(gmail_server, 587)
                 server.starttls()
                 server.login(username,password)
+                dt = datetime.now()
+                dt_str = dt.strftime("%Y-%m-%d %H:%M")
                 for recpt in recpts:
-                    print("Sending email %s" % recpt)
+                    print("Sending email to %s at %s" % (recpt, dt_str))
                     msg = """From: REDACTED\nTo: {recpt}\nSubject: BH Photo might have your item in stock!\n
 
                     {name}\n\n{url}
