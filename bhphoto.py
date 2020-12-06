@@ -62,11 +62,10 @@ try:
         lag = uniform(5,20)
         sleep(lag)
 except:
-    raise
-finally:
     msg = """From: REDACTED\nTo: {recpt}\nSubject: Your BH photo script crashed!\n
 
             Your script crashed
 
            """.format(recpt="REDACTED")
     server.sendmail(username, "REDACTED", msg)
+    raise
