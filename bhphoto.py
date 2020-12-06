@@ -19,7 +19,7 @@ headers = {
 
 }
 
-recpts = ["ALL_EMAILS"]
+recpts = ["ALL EMAILS"]
 
 link = "https://www.bhphotovideo.com/c/product/1606947-REG/gigabyte_gv_n306tgaming_oc_8gd_rtx_3060_ti_gaming.html"
 
@@ -31,14 +31,13 @@ if os.path.exists("/Users/bfemiano/bhphoto_email.sent"):
     print("sent file already exists. Mistake?")
 
 gmail_server = 'smtp.gmail.com'
-username = 'REDACDTED'
+username = 'REDACTED'
 password = "REDACTED"
 server = smtplib.SMTP(gmail_server, 587)
 server.starttls()
 server.login(username,password)
-
-while(True):
-    try:
+try:
+    while(True):
         with request.urlopen(req) as response:
             data_back = json.loads(response.read())
             for item in data_back['data']:
@@ -62,12 +61,12 @@ while(True):
                         pass
         lag = uniform(5,20)
         sleep(lag)
-    except:
-        raise
-    finally:
-        msg = """From: REDACTED\nTo: {recpt}\nSubject: Your BH photo script crashed!\n
+except:
+    raise
+finally:
+    msg = """From: REDACTED\nTo: {recpt}\nSubject: Your BH photo script crashed!\n
 
-                Your script crashed
+            Your script crashed
 
-               """.format(recpt="REDACTED")
-        server.sendmail(username, "REDACTED", msg)
+           """.format(recpt="REDACTED")
+    server.sendmail(username, "REDACTED", msg)
