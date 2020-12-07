@@ -33,11 +33,16 @@ if os.path.exists("/Users/bfemiano/bhphoto_email.sent"):
 gmail_server = 'smtp.gmail.com'
 username = 'REDACTED'
 password = "REDACTED"
+num_reqs = 0
 server = smtplib.SMTP(gmail_server, 587)
 server.starttls()
 server.login(username,password)
 try:
     while(True):
+        if num_reqs % 10 == 0 and num_reqs > 0: # reconnect every once in awhile just to avoid socket timeout issues.
+            server = smtplib.SMTP(gmail_server, 587)
+            server.starttls()
+            server.login(username,password)
         with request.urlopen(req) as response:
             data_back = json.loads(response.read())
             for item in data_back['data']:
@@ -61,6 +66,7 @@ try:
                         pass
         lag = uniform(5,20)
         sleep(lag)
+        num_reqs += 1
 except:
     msg = """From: REDACTED\nTo: {recpt}\nSubject: Your BH photo script crashed!\n
 
