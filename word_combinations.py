@@ -1,4 +1,4 @@
-letters_start = ["N", "U", "A", "T"]
+letters_start = ["U", "A", "T"]
 def p(letters, word):
     for i in range(len(letters)):
           if len(letters) > 1:	
