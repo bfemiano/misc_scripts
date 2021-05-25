@@ -2,14 +2,16 @@ defmodule CircularBuffer do
   use GenServer
   require Logger
 
-  # Easier to play around with if it's not linked to any other process.
-  def start(size: size) do
-    if size <= 0 do
-      raise "Size of circular buffer must be > 0."
-    end
-
-    GenServer.start(__MODULE__, %{read_pos: 0, write_pos: 0, size: size, buffer: :array.new(size)})
+  defmodule State do
+    defstruct [:read_pos, :write_pos, :size, :buffer]
   end
+
+  # Easier to play around with if it's not linked to any other process.
+  def start_link(size: size) when size > 0 do
+    GenServer.start_link(__MODULE__, %State{read_pos: 0, write_pos: 0, size: size, buffer: :array.new(size)})
+  end
+
+  def start_link(size: _size), do: raise "Size of circular buffer must be > 0."
 
   def write(pid, item) do
     GenServer.call(pid, {:write, item}, 60)
@@ -28,15 +30,16 @@ defmodule CircularBuffer do
   def handle_call(
         :read,
         _from,
-        %{read_pos: read_pos, write_pos: write_pos, size: size, buffer: buffer} = state
+        %State{read_pos: read_pos, write_pos: write_pos, size: size, buffer: buffer} = state
       ) do
+
+
     read_pos =
       case read_pos do
         # if the read pointer has reached the end of the buffer, wrap around.
         ^size -> 0
         _ -> read_pos
       end
-
     {item, new_buffer, next_read_pos} =
       case read_pos do
         # if the read pointer = write pointer then we have an empty list.
@@ -44,10 +47,17 @@ defmodule CircularBuffer do
           {nil, buffer, read_pos + 0}
 
         _ ->
-          {:array.get(read_pos, buffer), :array.set(read_pos, nil, buffer), read_pos + 1}
+          {:array.get(read_pos, buffer), buffer, read_pos + 1}
       end
 
-    {:reply, item, %{state | read_pos: next_read_pos, buffer: new_buffer}}
+    write_pos =
+      case write_pos do
+        # if the write pointer has reached the end of the buffer, wrap around.
+        ^size -> 0
+        _ -> write_pos
+      end
+
+    {:reply, item, %State{state | read_pos: next_read_pos, write_pos: write_pos, buffer: new_buffer}}
   end
 
   @impl true
@@ -64,7 +74,7 @@ defmodule CircularBuffer do
       end
 
     {:reply, nil,
-     %{state | write_pos: write_pos + 1, buffer: :array.set(write_pos, item, buffer)}}
+     %State{state | write_pos: write_pos + 1, buffer: :array.set(write_pos, item, buffer)}}
   end
 end
 
@@ -72,13 +82,13 @@ defmodule CircularBufferTest do
   use ExUnit.Case
 
   test "single item written to buffer can be read back." do
-    {:ok, pid} = CircularBuffer.start(size: 1)
+    {:ok, pid} = CircularBuffer.start_link(size: 1)
     CircularBuffer.write(pid, "hi")
     "hi" = CircularBuffer.read(pid)
   end
 
   test "multiple items written to buffer can be read back in FIFO order." do
-    {:ok, pid} = CircularBuffer.start(size: 2)
+    {:ok, pid} = CircularBuffer.start_link(size: 2)
     CircularBuffer.write(pid, "hi")
     CircularBuffer.write(pid, "there")
     "hi" = CircularBuffer.read(pid)
@@ -86,7 +96,7 @@ defmodule CircularBufferTest do
   end
 
   test "buffer that exceeds size starts having contents overwritten." do
-    {:ok, pid} = CircularBuffer.start(size: 3)
+    {:ok, pid} = CircularBuffer.start_link(size: 3)
     CircularBuffer.write(pid, "foo1")
     CircularBuffer.write(pid, "foo2")
     CircularBuffer.write(pid, "foo3")
@@ -96,18 +106,18 @@ defmodule CircularBufferTest do
   end
 
   test "empty buffer read returns nil." do
-    {:ok, pid} = CircularBuffer.start(size: 1)
+    {:ok, pid} = CircularBuffer.start_link(size: 1)
     nil = CircularBuffer.read(pid)
   end
 
   test "buffer cannot be created with size 0" do
     assert_raise(RuntimeError, "Size of circular buffer must be > 0.", fn ->
-      CircularBuffer.start(size: -1)
+      CircularBuffer.start_link(size: -1)
     end)
   end
 
   test "reads pickup where leftoff even after writes come in later" do
-    {:ok, pid} = CircularBuffer.start(size: 3)
+    {:ok, pid} = CircularBuffer.start_link(size: 3)
     CircularBuffer.write(pid, "foo1")
     CircularBuffer.write(pid, "foo2")
     CircularBuffer.write(pid, "foo3")
@@ -120,7 +130,7 @@ defmodule CircularBufferTest do
   end
 
   test "reads that catchup to all writes produce nil on next read." do
-    {:ok, pid} = CircularBuffer.start(size: 3)
+    {:ok, pid} = CircularBuffer.start_link(size: 3)
     CircularBuffer.write(pid, "foo1")
     CircularBuffer.write(pid, "foo2")
     CircularBuffer.write(pid, "foo3")
@@ -132,8 +142,8 @@ defmodule CircularBufferTest do
   end
 
   test "multiple buffers can exist under different pids and work fine in the same application." do
-    {:ok, foo_pid} = CircularBuffer.start(size: 1)
-    {:ok, bar_pid} = CircularBuffer.start(size: 1)
+    {:ok, foo_pid} = CircularBuffer.start_link(size: 1)
+    {:ok, bar_pid} = CircularBuffer.start_link(size: 1)
     CircularBuffer.write(foo_pid, "foo")
     CircularBuffer.write(bar_pid, "bar")
 
