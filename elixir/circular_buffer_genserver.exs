@@ -4,14 +4,58 @@ defmodule CircularBuffer do
 
   defmodule State do
     defstruct [:read_pos, :write_pos, :size, :buffer]
+
+    def read(%{read_pos: read_pos, write_pos: write_pos, size: size, buffer: buffer} = state) do
+      read_pos =
+        case read_pos do
+          # if the read pointer has reached the end of the buffer, wrap around.
+          ^size -> 0
+          _ -> read_pos
+        end
+
+      {item, new_buffer, next_read_pos} =
+        case read_pos do
+          # if the read pointer = write pointer then we have an empty list.
+          ^write_pos ->
+            {nil, buffer, read_pos + 0}
+
+          _ ->
+            {:array.get(read_pos, buffer), buffer, read_pos + 1}
+        end
+
+      write_pos =
+        case write_pos do
+          # if the write pointer has reached the end of the buffer, wrap around.
+          ^size -> 0
+          _ -> write_pos
+        end
+
+      {item, %State{state | read_pos: next_read_pos, write_pos: write_pos, buffer: new_buffer}}
+    end
+
+    def write(item, %State{write_pos: write_pos, size: size, buffer: buffer} = state) do
+      write_pos =
+        case write_pos do
+          # if the write pointer has reached the end of the buffer, wrap around.
+          ^size -> 0
+          _ -> write_pos
+        end
+
+      %State{state | write_pos: write_pos + 1, buffer: :array.set(write_pos, item, buffer)}
+    end
   end
 
   # Easier to play around with if it's not linked to any other process.
   def start_link(size: size) when size > 0 do
-    GenServer.start_link(__MODULE__, %State{read_pos: 0, write_pos: 0, size: size, buffer: :array.new(size)})
+    GenServer.start_link(__MODULE__, %State{
+      read_pos: 0,
+      write_pos: 0,
+      size: size,
+      buffer: :array.new(size)
+    })
   end
 
-  def start_link(size: _size), do: raise "Size of circular buffer must be > 0."
+  def start_link(size: _size), do: raise("Size of circular buffer must be > 0.")
 
   def write(pid, item) do
     GenServer.call(pid, {:write, item}, 60)
@@ -30,51 +74,19 @@ defmodule CircularBuffer do
   def handle_call(
         :read,
         _from,
-        %State{read_pos: read_pos, write_pos: write_pos, size: size, buffer: buffer} = state
+        state
       ) do
-
-
-    read_pos =
-      case read_pos do
-        # if the read pointer has reached the end of the buffer, wrap around.
-        ^size -> 0
-        _ -> read_pos
-      end
-    {item, new_buffer, next_read_pos} =
-      case read_pos do
-        # if the read pointer = write pointer then we have an empty list.
-        ^write_pos ->
-          {nil, buffer, read_pos + 0}
-
-        _ ->
-          {:array.get(read_pos, buffer), buffer, read_pos + 1}
-      end
-
-    write_pos =
-      case write_pos do
-        # if the write pointer has reached the end of the buffer, wrap around.
-        ^size -> 0
-        _ -> write_pos
-      end
-
-    {:reply, item, %State{state | read_pos: next_read_pos, write_pos: write_pos, buffer: new_buffer}}
+    {item, state} = State.read(state)
+    {:reply, item, state}
   end
 
   @impl true
   def handle_call(
         {:write, item},
         _from,
-        %{write_pos: write_pos, size: size, buffer: buffer} = state
+        state
       ) do
-    write_pos =
-      case write_pos do
-        # if the write pointer has reached the end of the buffer, wrap around.
-        ^size -> 0
-        _ -> write_pos
-      end
-
-    {:reply, nil,
-     %State{state | write_pos: write_pos + 1, buffer: :array.set(write_pos, item, buffer)}}
+    {:reply, nil, State.write(item, state)}
   end
 end
 
