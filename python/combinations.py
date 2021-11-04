@@ -1,7 +1,7 @@
 def ndice(n, seq=""):
     if n == 1:
         for i in range(1, 7):     
-            print seq + str(i)
+            print(seq + str(i))
     else:
         for i in range(1, 7):
             ndice(n-1, seq + str(i))        
@@ -21,7 +21,7 @@ def ndice(n, seq=""):
 def combos(pairs):
     def _combos(items, pairs, active):
         for i in range(len(pairs)):
-            print i
+            print(i)
             for letter_pair in pairs[i]:
                 items.add(active + (letter_pair))
                 _combos(items, pairs[i+1:], active + (letter_pair))
@@ -30,4 +30,4 @@ def combos(pairs):
     return _combos(start, [[(p[0], i) for i in range(1, p[1]+1)] for p in pairs], ())
 
 for item in combos([('a', 2), ('b', 2), ('c', 1)]):
-    print item
+    print(item)
