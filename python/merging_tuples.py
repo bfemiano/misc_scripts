@@ -1,27 +1,25 @@
 import pytest
 
 def mergeTuples(tups):
-    
-    tups = sorted(tups, key=lambda x: x[0])
-    if len(tups) == 1:
-        return tups
-    cur_start = tups[0][0]
-    cur_end = tups[0][1]
+    intervals = sorted(intervals, key=lambda x: x[0])
+    if len(intervals) == 1:
+        return intervals
     i = 1
     merged = []
-    while i < len(tups):
-        next_tup = tups[i]
-        if cur_end < next_tup[0]:
-            merged.append((cur_start, cur_end))
-            cur_start = next_tup[0]
-            cur_end = next_tup[1]
+    item = intervals[0]
+    while i < len(intervals):
+        next_item = intervals[i]
+        if item[1] >= next_item[0]:
+            if item[1] >= next_item[1]:
+                item = item
+            else:
+                item = [item[0], next_item[1]]
         else:
-            if next_tup[0] < cur_end < next_tup[1]:
-                cur_end = next_tup[1]
-        i+=1
-    merged.append((cur_start, cur_end))
-    return merged
-        
+            merged.append(item)
+            item = next_item
+        i += 1
+    merged.append(item)
+    return merged  
     
 def test_merge1():
     assert mergeTuples([(1, 2)]) == [(1,2)]
