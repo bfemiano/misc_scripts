@@ -3,7 +3,7 @@ import glob
 
 class SatReading():
 
-    def __init__(self, record):
+    def __init__(self, record: str):
         [sid, g_lat, g_lon, reading, ts] = record.strip("\n").split("|")
         self.record = record
         self.sid = sid
