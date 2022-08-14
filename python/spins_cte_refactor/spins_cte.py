@@ -27,7 +27,8 @@ def get_cte_query():
         not_previously_promoted AS (
             SELECT p.listener_id, p.promotion_id FROM listeners_with_promotion p
             LEFT JOIN promoted_listeners prev 
-                ON (p.promotion_id = prev.promotion_id AND p.listener_id = prev.listener_id)
+                ON (p.promotion_id = prev.promotion_id 
+                    AND p.listener_id = prev.listener_id)
             WHERE prev.promotion_id IS NULL
         ),
         listeners_eligable_for_promotion AS (
