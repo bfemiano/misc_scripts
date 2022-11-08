@@ -1,8 +1,9 @@
+from email.mime.text import MIMEText
+from getpass import getpass
 import random
 import sys
 import smtplib
 import time
-from getpass import getpass
 
 def pick(cousins):
     return cousins[random.randint(0, len(cousins)-1)]
@@ -11,20 +12,23 @@ def generate_email(giver, receiver):
     '''
         Programatically build the email message and return it as a string. 
     '''
-    (giver_name, giver_email, blocked1) = giver
-    (receiver_name, receiver_email, blocked2) = receiver
-    msg = '''Subject: Here's your assigned cousin!\n
-    
-    Hello {giver_name},
+
+    (giver_name, giver_email, _blocked1) = giver
+    (receiver_name, receiver_email, _blocked2) = receiver
+
+    email_user = "bfemiano@fastmail.com"
+    msg_body = f'''Hi {giver_name}!\n
  
-    Your gift exchange recipient: {receiver_name}
+    You'll be getting {receiver_name} a gift.
  
-    Email address to help you reach him/her: {receiver_email}
+    Here's their email address: {receiver_email}
  
-    The names were randomly drawn using a computer program I wrote that randomly paired cousins with other cousins. It was designed to avoid selecting yourself or people in your immediate family. So for example Joseph would not be paired with himself or Anna or Christopher.
- 
-    See you at the farm!
-    '''.format(giver_name=giver_name, receiver_name=receiver_name, receiver_email=receiver_email)
+    Happy Holidays!
+    '''
+    msg = MIMEText(msg_body)
+    msg['Subject'] = f"Hey there {giver_name}. This is Brian. Here's your assigned gift cousin!"
+    msg['From'] = email_user
+    msg['To'] = giver_email
     return (giver_email, msg)
 
 
@@ -76,22 +80,22 @@ blocked_map = get_blocked_list_for_cousins()
 emails_to_send = []
 results = [r for r in get_cousin_pairings() if r != 'done']
 for (giver, recipient) in results:
-    print '%s --> %s' % (giver[0], recipient[0])
+    print('%s --> %s' % (giver[0], recipient[0]))
     emails_to_send.append(generate_email(giver, recipient))
 
 #This is a regression test to make sure the auto-selector is working. Do not approve if you see any output here.
-for i in xrange(1000):
+for i in range(1000):
     results = get_cousin_pairings()
     output = [(pairing[0][0], pairing[1][0]) for pairing in results if pairing != 'done'] #collect only the names.
     for o in output:
        if o[1] in blocked_map[o[0]] or o[0] == o[1]:
-           print o[0], 'should not have --> %s ' % o[1]
+           print(o[0], 'should not have --> %s ' % o[1])
 
 # ---- end regression test ----
 
-contin = raw_input("Do you approve of the list? (Only 'Y' will continue)")
+contin = input("Do you approve of the list? (Only 'Y' will continue)")
 if contin != 'Y':
-    print 'Aborting'
+    print('Aborting')
     sys.exit(0)
 fastmail_server = 'mail.messagingengine.com:587'
 username = 'bfemiano@fastmail.com'
@@ -101,9 +105,9 @@ try:  #email out all the cousins using the prepared message.
     server.starttls()
     server.login(username,password)
     for (giver_email, msg) in emails_to_send:
-        print 'sending email to %s' % giver_email
-        server.sendmail(username, giver_email, msg)
+        print('sending email to %s' % giver_email)
+        server.sendmail(username, [giver_email], msg.as_string())
         time.sleep(3) #rate limit to avoid being flagged as spam, just as a precaution.
-    print 'Success!'
+    print('Success!')
 finally:
     server.quit()
