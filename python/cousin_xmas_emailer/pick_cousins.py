@@ -97,7 +97,7 @@ contin = input("Do you approve of the list? (Only 'Y' will continue)")
 if contin != 'Y':
     print('Aborting')
     sys.exit(0)
-fastmail_server = 'mail.messagingengine.com:587'
+fastmail_server = 'smtp.fastmail.com:587'
 username = 'bfemiano@fastmail.com'
 password = getpass("password please ")
 try:  #email out all the cousins using the prepared message.
